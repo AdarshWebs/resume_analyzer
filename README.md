@@ -15,38 +15,36 @@ A web application that analyzes resumes, extracts key information, and provides 
 ## Technology Stack
 
 - **Backend**: Python, Flask
-- **Database**: PostgreSQL
+- **Database**: SQLite (local database)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap 5
 - **Data Visualization**: Chart.js
-- **NLP**: Spacy (if installed)
+- **NLP**: spaCy (optional)
 
 ## Installation and Setup
 
 1. Clone the repository:
 ```
 git clone <repository-url>
-cd resume-analyzer
+cd ResumeIntelligence
 ```
 
-2. Install dependencies:
+2. Install core dependencies:
 ```
-pip install -r requirements.txt
-```
-
-3. Set up the environment variables:
-```
-DATABASE_URL=postgresql://username:password@localhost:5432/resume_analyzer
+pip install flask flask-sqlalchemy werkzeug pdfplumber python-docx
 ```
 
-4. (Optional) Install spaCy model for improved name extraction and NLP capabilities:
+3. (Optional) Install spaCy for improved NLP capabilities:
 ```
+pip install spacy
 python -m spacy download en_core_web_sm
 ```
 
-5. Run the application:
+4. Run the application:
 ```
 python main.py
 ```
+
+The application will start at http://localhost:5000 and automatically create a SQLite database file (resume_analyzer.db).
 
 ## Project Structure
 
@@ -69,7 +67,7 @@ python main.py
 
 ## Database
 
-The application uses PostgreSQL to store resume data and analysis results. The main tables are:
+The application uses SQLite to store resume data and analysis results. The database is automatically created in the project directory as `resume_analyzer.db`. The main tables are:
 
 - `resumes`: Stores uploaded resume data and analysis results
 - `users`: User information (for future authentication features)

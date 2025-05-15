@@ -3,15 +3,19 @@ import re
 import io
 import pdfplumber
 from docx import Document
-import spacy
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Set nlp to None since spaCy model is not available
-logger.warning("SpaCy model not available. Using basic parsing methods instead.")
-nlp = None
+# Try to import spaCy, but provide a fallback if it's not available
+try:
+    import spacy
+    nlp = spacy.load('en_core_web_sm')
+    logger.info("SpaCy model loaded successfully")
+except ImportError:
+    logger.warning("SpaCy model not available. Using basic parsing methods instead.")
+    nlp = None
 
 def parse_resume(filepath, file_extension):
     """

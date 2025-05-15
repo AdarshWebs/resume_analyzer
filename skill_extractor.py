@@ -2,16 +2,20 @@ import json
 import re
 import os
 import logging
-import spacy
 from collections import defaultdict
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Set nlp to None since spaCy model is not available
-logger.warning("SpaCy model not available. Using basic skill extraction methods instead.")
-nlp = None
+# Try to import spaCy, but provide a fallback if it's not available
+try:
+    import spacy
+    nlp = spacy.load('en_core_web_sm')
+    logger.info("SpaCy model loaded successfully")
+except ImportError:
+    logger.warning("SpaCy model not available. Using basic skill extraction methods instead.")
+    nlp = None
 
 # Load skills dictionary
 def load_skills_dictionary():

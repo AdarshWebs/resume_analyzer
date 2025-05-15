@@ -21,8 +21,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "resume-analyzer-secret")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure database
-database_url = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_C85gcGiRjvwl@ep-noisy-morning-a6w9ifir.us-west-2.aws.neon.tech/neondb?sslmode=require")
+# Configure database - use SQLite instead of PostgreSQL for simplicity
+database_url = os.environ.get("DATABASE_URL", "sqlite:///resume_analyzer.db")
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -212,6 +212,13 @@ def view_resume(resume_id):
     session['suggestions'] = resume.suggestions
     
     return redirect(url_for('results'))
+
+# Error handler for 405 Method Not Allowed
+@app.errorhandler(405)
+def method_not_allowed(e):
+    logger.error(f"Method Not Allowed Error: {request.method} request to {request.path}")
+    flash(f'Method Not Allowed: The {request.method} method is not allowed for the requested URL. Please use the form on the homepage.')
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
