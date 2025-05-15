@@ -1,0 +1,517 @@
+{% extends 'layout.html' %}
+
+{% block title %}Resume Analysis Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progress-bar {
+        transition: width 1.5s ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Resume Analysis Results</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Analyze Another Resume
+    </a>
+</div>
+
+<div class="row">
+    <!-- Score Summary -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-star me-2"></i>Resume Score
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <canvas id="scoreChart" data-score="{{ scores.overall }}"></canvas>
+                </div>
+                
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="grade-badge me-3 bg-{{ 'success' if scores.grade == 'A' else 'info' if scores.grade == 'B' else 'warning' if scores.grade == 'C' else 'danger' }}">
+                        {{ scores.grade }}
+                    </div>
+                    <div class="text-start">
+                        <h5 class="mb-0">
+                            {% if scores.grade == 'A' %}
+                                Excellent Resume
+                            {% elif scores.grade == 'B' %}
+                                Good Resume
+                            {% elif scores.grade == 'C' %}
+                                Average Resume
+                            {% else %}
+                                Needs Improvement
+                            {% endif %}
+                        </h5>
+                        <p class="text-muted small mb-0">
+                            {% if scores.grade == 'A' %}
+                                Your resume is very strong
+                            {% elif scores.grade == 'B' %}
+                                Minor improvements recommended
+                            {% elif scores.grade == 'C' %}
+                                Several areas need attention
+                            {% else %}
+                                Major revisions recommended
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <canvas id="categoryScores" data-scores="{{ scores|tojson }}"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Suggestions -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Key Improvement Suggestions
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if suggestions.high_priority %}
+                    <h6 class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>High Priority</h6>
+                    <ul class="list-group mb-4">
+                        {% for suggestion in suggestions.high_priority %}
+                            <li class="list-group-item high-priority ps-3">{{ suggestion }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if suggestions.medium_priority %}
+                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Medium Priority</h6>
+                    <ul class="list-group mb-4">
+                        {% for suggestion in suggestions.medium_priority %}
+                            <li class="list-group-item medium-priority ps-3">{{ suggestion }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if suggestions.low_priority %}
+                    <h6 class="text-info"><i class="fas fa-info-circle me-2"></i>Low Priority</h6>
+                    <ul class="list-group">
+                        {% for suggestion in suggestions.low_priority %}
+                            <li class="list-group-item low-priority ps-3">{{ suggestion }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if not suggestions.high_priority and not suggestions.medium_priority and not suggestions.low_priority %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>Your resume looks great! No major issues were detected.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>Skills Analysis
+                    <button class="btn btn-sm btn-link text-white float-end toggle-section" data-target="skillsContent">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body d-none" id="skillsContent">
+                <div class="row">
+                    <!-- Technical Skills -->
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2 mb-3">Technical Skills</h6>
+                        
+                        {% for category, skills in skills.items() %}
+                            {% if category != 'soft_skills' and not category.startswith('industry_') and category != 'uncategorized' and skills|length > 0 %}
+                                <div class="mb-3">
+                                    <strong>{{ category|replace('_', ' ')|title }}:</strong>
+                                    <div>
+                                        {% for skill in skills %}
+                                            <span class="skill-pill">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Soft Skills & Industry Skills -->
+                    <div class="col-md-6">
+                        {% if skills.soft_skills %}
+                            <h6 class="border-bottom pb-2 mb-3">Soft Skills</h6>
+                            <div class="mb-4">
+                                {% for skill in skills.soft_skills %}
+                                    <span class="skill-pill">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% for category, skills_list in skills.items() %}
+                            {% if category.startswith('industry_') and skills_list|length > 0 %}
+                                <h6 class="border-bottom pb-2 mb-3">{{ category|replace('industry_', '')|replace('_', ' ')|title }} Skills</h6>
+                                <div class="mb-3">
+                                    {% for skill in skills_list %}
+                                        <span class="skill-pill">{{ skill }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if skills.uncategorized %}
+                            <h6 class="border-bottom pb-2 mb-3">Other Skills</h6>
+                            <div>
+                                {% for skill in skills.uncategorized %}
+                                    <span class="skill-pill">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Keyword Matching -->
+                {% if analysis.keyword_match.match_percentage is not none %}
+                    <div class="mt-4">
+                        <h6 class="border-bottom pb-2 mb-3">Keyword Match with Job Description</h6>
+                        
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="progress" style="height: 24px;">
+                                    <div class="progress-bar bg-{{ 'success' if analysis.keyword_match.match_percentage >= 80 else 'info' if analysis.keyword_match.match_percentage >= 60 else 'warning' if analysis.keyword_match.match_percentage >= 40 else 'danger' }}" 
+                                         role="progressbar" 
+                                         style="width: 0%;" 
+                                         aria-valuenow="{{ analysis.keyword_match.match_percentage|round|int }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ analysis.keyword_match.match_percentage|round|int }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <p class="mb-0">
+                                    {% if analysis.keyword_match.assessment == 'excellent' %}
+                                        <span class="text-success">Excellent match!</span> Your resume contains most of the keywords from the job description.
+                                    {% elif analysis.keyword_match.assessment == 'good' %}
+                                        <span class="text-info">Good match.</span> Your resume contains many keywords from the job description.
+                                    {% elif analysis.keyword_match.assessment == 'fair' %}
+                                        <span class="text-warning">Fair match.</span> Your resume contains some keywords, but could use more alignment with the job description.
+                                    {% elif analysis.keyword_match.assessment == 'poor' %}
+                                        <span class="text-danger">Poor match.</span> Your resume is missing many important keywords from the job description.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            {% if analysis.keyword_match.matched_keywords %}
+                                <div class="col-md-6">
+                                    <h6 class="text-success"><i class="fas fa-check-circle me-2"></i>Keywords Present</h6>
+                                    <ul class="list-group">
+                                        {% for keyword in analysis.keyword_match.matched_keywords %}
+                                            <li class="list-group-item bg-success bg-opacity-10 border-success">{{ keyword }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            
+                            {% if analysis.keyword_match.missing_keywords %}
+                                <div class="col-md-6">
+                                    <h6 class="text-danger"><i class="fas fa-times-circle me-2"></i>Keywords Missing</h6>
+                                    <ul class="list-group">
+                                        {% for keyword in analysis.keyword_match.missing_keywords %}
+                                            <li class="list-group-item bg-danger bg-opacity-10 border-danger">{{ keyword }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>No job description provided for keyword matching. For better results, add a job description when analyzing your resume.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Structure Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-sitemap me-2"></i>Resume Structure Analysis
+                    <button class="btn btn-sm btn-link text-white float-end toggle-section" data-target="structureContent">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body d-none" id="structureContent">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6>Section Completeness</h6>
+                        
+                        <!-- Essential Sections -->
+                        <div class="mb-4">
+                            <h6 class="text-muted">Essential Sections</h6>
+                            <ul class="list-group">
+                                {% for section in ['summary', 'education', 'experience', 'skills'] %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ section|title }}
+                                        {% if section in analysis.sections_analysis.present %}
+                                            <span class="badge bg-success rounded-pill">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger rounded-pill">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <!-- Recommended Sections -->
+                        <div>
+                            <h6 class="text-muted">Recommended Sections</h6>
+                            <ul class="list-group">
+                                {% for section in ['projects', 'certifications', 'languages'] %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ section|title }}
+                                        {% if section in analysis.sections_analysis.present %}
+                                            <span class="badge bg-success rounded-pill">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning rounded-pill">
+                                                <i class="fas fa-exclamation"></i>
+                                            </span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <h6>Content Quality</h6>
+                        
+                        <!-- Word Count -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Total Word Count</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="progress flex-grow-1 me-3" style="height: 10px;">
+                                        {% set word_count = analysis.word_count.total %}
+                                        {% set word_count_percent = (word_count / 1000 * 100)|min(100) %}
+                                        <div class="progress-bar bg-{{ 'success' if word_count >= 400 and word_count <= 800 else 'warning' }}" role="progressbar" style="width: 0%;" aria-valuenow="{{ word_count_percent|round|int }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <span class="fw-bold">{{ word_count }}</span>
+                                </div>
+                                <p class="card-text small mt-2 mb-0">
+                                    {% if word_count < 300 %}
+                                        <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Too short.</span> Recommended range: 400-800 words.
+                                    {% elif word_count > 1000 %}
+                                        <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Too long.</span> Recommended range: 400-800 words.
+                                    {% else %}
+                                        <span class="text-success"><i class="fas fa-check-circle me-1"></i>Good length.</span> Your resume length is in the optimal range.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Verbs -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Action Verbs Usage</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Density:</span>
+                                    <span class="fw-bold">{{ (analysis.action_verbs.action_verb_density * 100)|round(1) }}%</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span>Unique Action Verbs:</span>
+                                    <span class="fw-bold">{{ analysis.action_verbs.unique_action_verbs }}</span>
+                                </div>
+                                
+                                {% if analysis.action_verbs.most_used_verbs %}
+                                    <div class="mt-3">
+                                        <h6 class="small text-muted">Most Used Action Verbs:</h6>
+                                        <div>
+                                            {% for verb, count in analysis.action_verbs.most_used_verbs %}
+                                                <span class="badge bg-secondary me-1 mb-1">{{ verb }} ({{ count }})</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <p class="card-text small mt-3 mb-0">
+                                    {% if analysis.action_verbs.assessment == 'good' %}
+                                        <span class="text-success"><i class="fas fa-check-circle me-1"></i>Good usage of action verbs.</span>
+                                    {% else %}
+                                        <span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Consider using more action verbs</span> to strengthen your experience descriptions.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Common Issues -->
+                {% if analysis.common_resume_issues %}
+                    <div class="mt-2">
+                        <h6>Identified Issues</h6>
+                        <ul class="list-group">
+                            {% for issue in analysis.common_resume_issues %}
+                                <li class="list-group-item list-group-item-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>{{ issue }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Extracted Resume Data -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-id-card me-2"></i>Extracted Resume Data
+                    <button class="btn btn-sm btn-link text-white float-end toggle-section" data-target="resumeDataContent">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body d-none" id="resumeDataContent">
+                <!-- Contact Information -->
+                <div class="mb-4">
+                    <h6 class="border-bottom pb-2">Contact Information</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="contact-info">
+                                <i class="fas fa-user"></i>{{ resume_data.name }}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="contact-info">
+                                <i class="fas fa-envelope"></i>{{ resume_data.email }}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="contact-info">
+                                <i class="fas fa-phone"></i>{{ resume_data.phone }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Education -->
+                {% if resume_data.education %}
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Education</h6>
+                        {% for edu in resume_data.education %}
+                            <div class="education-item">
+                                {% if edu.degree %}
+                                    <h6>{{ edu.degree }}</h6>
+                                {% endif %}
+                                <p class="mb-1">{{ edu.details }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Experience -->
+                {% if resume_data.experience %}
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Experience</h6>
+                        {% for exp in resume_data.experience %}
+                            <div class="experience-item">
+                                {% if exp.title_company %}
+                                    <h6>{{ exp.title_company }}</h6>
+                                {% endif %}
+                                {% if exp.date %}
+                                    <p class="text-muted">{{ exp.date }}</p>
+                                {% endif %}
+                                <p class="mb-0">{{ exp.description }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Projects -->
+                {% if resume_data.projects %}
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Projects</h6>
+                        {% for project in resume_data.projects %}
+                            <div class="mb-3">
+                                {% if project.title %}
+                                    <h6>{{ project.title }}</h6>
+                                {% endif %}
+                                <p class="mb-0">{{ project.description }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <!-- Certifications -->
+                {% if resume_data.certifications %}
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Certifications</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for cert in resume_data.certifications %}
+                                <li class="list-group-item">{{ cert }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                <!-- Languages -->
+                {% if resume_data.languages %}
+                    <div>
+                        <h6 class="border-bottom pb-2">Languages</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for lang in resume_data.languages %}
+                                <li class="list-group-item">{{ lang }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress bars
+        setTimeout(function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const value = bar.getAttribute('aria-valuenow');
+                bar.style.width = value + '%';
+            });
+        }, 200);
+    });
+</script>
+{% endblock %}

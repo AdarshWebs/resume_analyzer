@@ -1,0 +1,90 @@
+{
+  "technical": {
+    "programming_languages": [
+      "Python", "Java", "JavaScript", "C++", "C#", "PHP", "Ruby", "Swift", "Kotlin", "Go",
+      "TypeScript", "R", "MATLAB", "Perl", "Scala", "Rust", "Dart", "Objective-C", "Bash",
+      "PowerShell", "SQL", "HTML", "CSS", "XML", "JSON", "YAML", "Assembly"
+    ],
+    "frameworks_libraries": [
+      "React", "Angular", "Vue.js", "Django", "Flask", "Spring", "ASP.NET", "Laravel",
+      "Express.js", "Ruby on Rails", "TensorFlow", "PyTorch", "Keras", "Scikit-learn",
+      "Pandas", "NumPy", "jQuery", "Bootstrap", "Tailwind CSS", "Node.js", "Redux",
+      "Next.js", "Gatsby", "FastAPI", "Symfony", "Hibernate", "Mongoose", "Unity"
+    ],
+    "databases": [
+      "MySQL", "PostgreSQL", "SQLite", "Oracle", "Microsoft SQL Server", "MongoDB",
+      "Redis", "Cassandra", "DynamoDB", "Elasticsearch", "Firebase", "Neo4j", "MariaDB",
+      "CouchDB", "Firestore"
+    ],
+    "cloud_services": [
+      "AWS", "Azure", "Google Cloud", "Heroku", "DigitalOcean", "IBM Cloud", "Oracle Cloud",
+      "Alibaba Cloud", "Linode", "Vultr", "EC2", "S3", "Lambda", "DynamoDB", "RDS",
+      "CloudFront", "IAM", "Azure Functions", "App Engine", "GKE", "Azure DevOps"
+    ],
+    "tools": [
+      "Git", "Docker", "Kubernetes", "Jenkins", "Travis CI", "CircleCI", "GitHub Actions",
+      "Terraform", "Ansible", "Puppet", "Chef", "Vagrant", "JIRA", "Confluence", "Trello",
+      "Slack", "VS Code", "IntelliJ IDEA", "Eclipse", "Xcode", "Android Studio", "PyCharm",
+      "Postman", "Insomnia", "Figma", "Sketch", "Adobe XD"
+    ],
+    "methodologies": [
+      "Agile", "Scrum", "Kanban", "Waterfall", "DevOps", "CI/CD", "TDD", "BDD", "XP",
+      "Lean", "Six Sigma", "ITIL", "SAFe", "LeSS", "Design Thinking", "Microservices",
+      "Serverless", "RESTful", "SOA"
+    ]
+  },
+  "soft": [
+    "Communication", "Leadership", "Teamwork", "Problem Solving", "Critical Thinking",
+    "Adaptability", "Time Management", "Creativity", "Emotional Intelligence", "Negotiation",
+    "Conflict Resolution", "Decision Making", "Empathy", "Active Listening", "Public Speaking",
+    "Written Communication", "Collaboration", "Organization", "Project Management", "Attention to Detail",
+    "Strategic Thinking", "Analytical Skills", "Customer Service", "Interpersonal Skills", "Flexibility"
+  ],
+  "industry_specific": {
+    "finance": [
+      "Financial Analysis", "Accounting", "Financial Reporting", "Budgeting", "Forecasting",
+      "Risk Management", "Investment Banking", "Financial Modeling", "Valuation",
+      "Portfolio Management", "Financial Planning", "Auditing", "Tax Preparation",
+      "Mergers & Acquisitions", "Compliance", "Banking", "Insurance", "Equity Research"
+    ],
+    "healthcare": [
+      "Patient Care", "Electronic Health Records (EHR)", "Medical Terminology", "Healthcare Compliance",
+      "Clinical Research", "Medical Coding", "HIPAA", "Telemedicine", "Medical Billing",
+      "Healthcare Administration", "Pharmacy", "Nursing", "Medical Devices", "Biotechnology"
+    ],
+    "marketing": [
+      "Digital Marketing", "SEO", "SEM", "Social Media Marketing", "Content Marketing",
+      "Email Marketing", "Market Research", "Brand Management", "Marketing Strategy",
+      "Google Analytics", "CRM", "Growth Hacking", "Affiliate Marketing", "A/B Testing",
+      "User Acquisition", "Conversion Rate Optimization", "Google Ads", "Facebook Ads"
+    ],
+    "data_science": [
+      "Machine Learning", "Deep Learning", "Data Analysis", "Data Visualization", "Big Data",
+      "Statistical Analysis", "Data Mining", "Natural Language Processing", "Computer Vision",
+      "Predictive Modeling", "Feature Engineering", "Data Cleaning", "ETL", "BI Tools",
+      "A/B Testing", "Hypothesis Testing", "Regression Analysis", "Clustering"
+    ],
+    "engineering": [
+      "Civil Engineering", "Mechanical Engineering", "Electrical Engineering", "Chemical Engineering",
+      "Aerospace Engineering", "Biomedical Engineering", "Environmental Engineering",
+      "Industrial Engineering", "Structural Analysis", "CAD", "CAM", "AutoCAD", "SolidWorks",
+      "MATLAB", "Circuit Design", "PCB Design", "PLC Programming"
+    ],
+    "design": [
+      "Graphic Design", "UI Design", "UX Design", "Web Design", "Product Design",
+      "Industrial Design", "Typography", "Branding", "Adobe Photoshop", "Adobe Illustrator",
+      "Adobe InDesign", "Sketch", "Figma", "Wireframing", "Prototyping", "User Research",
+      "Usability Testing", "Design Systems", "Design Thinking"
+    ],
+    "education": [
+      "Curriculum Development", "Instructional Design", "eLearning", "LMS", "Educational Technology",
+      "Assessment", "Pedagogy", "Classroom Management", "Special Education", "STEM Education",
+      "Higher Education", "K-12", "Teaching", "Training", "Educational Leadership"
+    ],
+    "legal": [
+      "Legal Research", "Contract Law", "Corporate Law", "Intellectual Property", "Patent Law",
+      "Trademark Law", "Copyright Law", "Litigation", "Negotiation", "Legal Writing",
+      "Legal Compliance", "GDPR", "CCPA", "Regulatory Affairs", "Due Diligence"
+    ]
+  }
+}
