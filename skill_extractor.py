@@ -9,17 +9,9 @@ from collections import defaultdict
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Load spaCy model for NLP processing
-try:
-    nlp = spacy.load("en_core_web_sm")
-except Exception as e:
-    logger.error(f"Error loading spaCy model: {str(e)}")
-    # Fallback to a simpler model if the main one isn't available
-    try:
-        nlp = spacy.load("en")
-    except:
-        logger.error("Could not load any spaCy model, basic skill extraction only will be available")
-        nlp = None
+# Set nlp to None since spaCy model is not available
+logger.warning("SpaCy model not available. Using basic skill extraction methods instead.")
+nlp = None
 
 # Load skills dictionary
 def load_skills_dictionary():

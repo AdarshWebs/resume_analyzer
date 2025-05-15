@@ -317,7 +317,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="progress flex-grow-1 me-3" style="height: 10px;">
                                         {% set word_count = analysis.word_count.total %}
-                                        {% set word_count_percent = (word_count / 1000 * 100)|min(100) %}
+                                        {% set word_count_percent = [word_count / 1000 * 100, 100]|min %}
                                         <div class="progress-bar bg-{{ 'success' if word_count >= 400 and word_count <= 800 else 'warning' }}" role="progressbar" style="width: 0%;" aria-valuenow="{{ word_count_percent|round|int }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                     <span class="fw-bold">{{ word_count }}</span>
