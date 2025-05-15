@@ -102,13 +102,9 @@ def extract_resume_data(text):
     return resume_data
 
 def extract_name(text):
-    """Extract name from text using spaCy if available, or regex patterns"""
-    if nlp:
-        # Use spaCy for named entity recognition
-        doc = nlp(text.split('\n')[0])  # Assume name is in the first line
-        for ent in doc.ents:
-            if ent.label_ == 'PERSON':
-                return ent.text
+    """Extract name from text using basic regex patterns"""
+    # We're skipping spaCy since it's not available
+    # Use simple method to extract name based on first few lines
     
     # Fallback to first line if no name entity was found
     lines = text.split('\n')

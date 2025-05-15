@@ -68,7 +68,7 @@ def upload_file():
         flash('No selected file')
         return redirect(request.url)
     
-    if file and allowed_file(file.filename):
+    if file and file.filename and allowed_file(file.filename):
         try:
             # Generate a unique filename with the original extension
             original_extension = file.filename.rsplit('.', 1)[1].lower()
@@ -106,6 +106,43 @@ def upload_file():
             session['scores'] = scores
             session['suggestions'] = suggestions
             
+            # Save to database
+            try:
+                # Create a new Resume record
+                resume_record = Resume()
+                resume_record.filename = file.filename
+                resume_record.name = resume_data.get('name', 'Unknown')
+                resume_record.email = resume_data.get('email', '')
+                resume_record.phone = resume_data.get('phone', '')
+                resume_record.raw_text = resume_data.get('raw_text', '')
+                resume_record.job_description = job_description
+                resume_record.skills = skills
+                resume_record.sections_analysis = analysis.get('sections_analysis', {})
+                resume_record.keyword_match = analysis.get('keyword_match', {})
+                resume_record.action_verbs_analysis = analysis.get('action_verbs', {})
+                resume_record.word_count_analysis = analysis.get('word_count', {})
+                resume_record.common_issues = analysis.get('common_resume_issues', [])
+                resume_record.overall_score = scores.get('overall', 0)
+                resume_record.sections_score = scores.get('sections', 0)
+                resume_record.keywords_score = scores.get('keywords', 0)
+                resume_record.action_verbs_score = scores.get('action_verbs', 0)
+                resume_record.word_count_score = scores.get('word_count', 0)
+                resume_record.issues_score = scores.get('issues', 0)
+                resume_record.grade = scores.get('grade', 'F')
+                resume_record.suggestions = suggestions
+                
+                # Save to database
+                db.session.add(resume_record)
+                db.session.commit()
+                
+                # Store the resume ID in session for future reference
+                session['resume_id'] = resume_record.id
+                logger.debug(f"Resume saved to database with ID: {resume_record.id}")
+            except Exception as e:
+                logger.error(f"Error saving to database: {str(e)}")
+                db.session.rollback()
+                # Continue even if database save fails
+            
             # Clean up the file
             os.remove(filepath)
             
@@ -133,6 +170,48 @@ def results():
                           analysis=session['analysis'],
                           scores=session['scores'],
                           suggestions=session['suggestions'])
+
+@app.route('/history')
+def history():
+    """Display resume analysis history"""
+    # Get all resumes from database
+    resumes = Resume.query.order_by(Resume.upload_date.desc()).all()
+    
+    return render_template('history.html', resumes=resumes)
+
+@app.route('/view_resume/<int:resume_id>')
+def view_resume(resume_id):
+    """View a specific resume analysis from history"""
+    # Get the resume from database
+    resume = Resume.query.get_or_404(resume_id)
+    
+    # Set session data
+    session['resume_data'] = {
+        'name': resume.name,
+        'email': resume.email,
+        'phone': resume.phone,
+        'raw_text': resume.raw_text
+    }
+    session['skills'] = resume.skills
+    session['analysis'] = {
+        'sections_analysis': resume.sections_analysis,
+        'keyword_match': resume.keyword_match,
+        'action_verbs': resume.action_verbs_analysis,
+        'word_count': resume.word_count_analysis,
+        'common_resume_issues': resume.common_issues
+    }
+    session['scores'] = {
+        'overall': resume.overall_score,
+        'sections': resume.sections_score,
+        'keywords': resume.keywords_score,
+        'action_verbs': resume.action_verbs_score,
+        'word_count': resume.word_count_score,
+        'issues': resume.issues_score,
+        'grade': resume.grade
+    }
+    session['suggestions'] = resume.suggestions
+    
+    return redirect(url_for('results'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
