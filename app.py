@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 import tempfile
 import uuid
+from flask_sqlalchemy import SQLAlchemy
 
 # Import the resume processing modules
 from resume_parser import parse_resume
@@ -20,11 +21,28 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "resume-analyzer-secret")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+# Configure database
+database_url = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_C85gcGiRjvwl@ep-noisy-morning-a6w9ifir.us-west-2.aws.neon.tech/neondb?sslmode=require")
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Import and initialize database models
+from models import db, Resume, User
+db.init_app(app)
+
 # Configure upload settings
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload size
 TEMP_FOLDER = tempfile.gettempdir()
 app.config['UPLOAD_FOLDER'] = TEMP_FOLDER
+
+# Create database tables if they don't exist
+with app.app_context():
+    db.create_all()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
