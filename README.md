@@ -24,7 +24,7 @@ A web application that analyzes resumes, extracts key information, and provides 
 
 1. Clone the repository:
 ```
-git clone <repository-url>
+git clone https://github.com/AdarshWebs/resume_analyzer.git
 cd ResumeIntelligence
 ```
 
